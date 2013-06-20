@@ -1,0 +1,20 @@
+description = 'Grails Resource Extender Plugin'
+
+version = '0.1'
+
+group = 'at.scheinecker'
+ext.artifactId = 'grep'
+
+ext.gradleVersion = '1.5'
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'groovy'
+apply plugin: 'idea'
