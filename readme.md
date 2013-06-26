@@ -13,7 +13,7 @@ In addition just add some minor configurations like that:
 ```groovy
 grails.resources.mappers.augment.lesscsscompatibility = true
 grails.resources.mappers.augment.augment = [
-	'/less/main.less' : [
+	'less/main.less' : [
 			after: "${System.properties['catalina.base']}/style/ci_modifications.less"
 	]
 ]
@@ -26,8 +26,37 @@ By doing so you can easily provide a customized look & feel within a few minutes
 
 ##CURRENT FEATURES##
 
-* add content to any text based resource (eg. js, css, less, etc.) via simple configuration parameters
+* add content to any text based resource (eg. js, css, less, etc.) via simple configuration
 * choose between prepending ('before') and appending ('after') the content to the file - or do both!
+
+##CONFIGURATION##
+
+The following configurations can be made atm:
+###grails.resources.mappers.augment.includes###
+A list of ant patterns of all resources to include into the augmentation process. Defaults to ['less/\*\*/\*.less*, 'css/\*\*/\*.css', 'js/\*\*/\*.js']
+
+###grails.resources.mappers.augment.excludes###
+A list of ant patterns of all resources for exclude form the augmentation process. Empty by default
+
+###grails.resources.mappers.augment.lesscsscompatibility###
+If true all augmented *.less* files will update the sourceUrl to enable processing by the lesscss plugin
+
+###grails.resources.mappers.augment.augment###
+A map containing the configuration on which resources to augment with which files.
+The keys of the map are ant patterns against all resources which are included for processing are matched.
+The values again are a map which can contain values for 'before' (prepend to the resource) and 'after' (append to the resource).
+The values of this map correspond either to absolute file system paths or relative to the parent context of the grails application.
+
+This leads to the following structure:
+
+```groovy
+['<<antPattern>>' :
+    [
+        before: '<<absoluteOrRelativePath>>',
+        after: '<<absoluteOrRelativePath>>'
+    ]
+]
+```
 
 ##KNOWN LIMITATIONS##
 
@@ -35,7 +64,6 @@ By doing so you can easily provide a customized look & feel within a few minutes
 
 ##TODO##
 
-* use ant patterns for target definitions
 * get rid of 'grails.resources.mappers.augment.lesscsscompatibility'
 * add possbility to provide a list of files rather then single files
 * add possbility to configure a resource provider instead of only a path to files

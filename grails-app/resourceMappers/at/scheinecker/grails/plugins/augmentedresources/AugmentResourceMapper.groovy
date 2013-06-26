@@ -1,13 +1,12 @@
 package at.scheinecker.grails.plugins.augmentedresources
 
 import org.apache.commons.logging.LogFactory
+import org.codehaus.groovy.grails.io.support.AntPathMatcher
 import org.grails.plugin.resource.mapper.MapperPhase
+
 /**
- * Created with IntelliJ IDEA.
- * User: Thomas
- * Date: 20/06/13
- * Time: 21:42
- * To change this template use File | Settings | File Templates.
+ * This resource mapper appends and prepends the content of files to configured resources.
+ * @author Thomas Scheinecker
  */
 class AugmentResourceMapper {
 	private static final LOG = LogFactory.getLog(this)
@@ -23,20 +22,66 @@ class AugmentResourceMapper {
 
 	static defaultIncludes = ['less/**/*.less', 'css/**/*.css', 'js/**/*.js']
 
+	AntPathMatcher antPathMatcher = new AntPathMatcher()
+
+	private List<String> getMatchingPatterns(patterns, String sourceUrl) {
+		List<String> matches = []
+
+		String url = sourceUrl
+
+		if (sourceUrl.startsWith('/')) {
+			url = sourceUrl.substring(1)
+		}
+
+		patterns.each {
+			if (antPathMatcher.match(it, url)) {
+				matches << it
+			}
+		}
+
+		return matches
+	}
+
+	private void copyAll(paths, StringBuilder sb) {
+		paths.each {
+			!it ?: copyContent(getFile(it), sb)
+		}
+	}
+
+
+	private void copyContent(File src, StringBuilder sb) {
+		if (src?.exists()) {
+			debug "Copy contents of ${src}"
+			src.findAll().each {
+				sb << "${it}\n"
+			}
+		}
+	}
+
 	def map(resource, config) {
 
-		if (!config.augment.containsKey(resource.sourceUrl)) {
+		List<String> patterns = getMatchingPatterns(config.augment.keySet(), resource.sourceUrl)
+
+		if (!patterns) {
 			return // nothing to be done here
 		}
 
 		debug "Preparing to augment ${resource.sourceUrl}"
 
-		def augmentConfig = config.augment[resource.sourceUrl]
+		def prepends = []
+		def appends = []
 
-		File before = getFile(augmentConfig.before)
-		File after = getFile(augmentConfig.after)
+		patterns.each {
+			Object augmentConfig = config.augment[it]
 
-		if (!before?.exists() && !after?.exists()) {
+			def prepend = augmentConfig.before
+			!prepend ?: (prepends << prepend)
+
+			def append = augmentConfig.after
+			!append ?: (appends << append)
+		}
+
+		if (!prepends && !appends) {
 			return // nothing to be done here
 		}
 
@@ -66,24 +111,14 @@ class AugmentResourceMapper {
 
 		StringBuilder sb = new StringBuilder()
 
-		if (before?.exists()) {
-			debug "Copy contents of ${before}"
-			before.findAll().each {
-				sb << "${it}\n"
-			}
-		}
+		!prepends ?: debug("Prepending...")
+		copyAll(prepends, sb)
 
-		debug "Copy contents of ${origin}"
-		origin.findAll().each {
-			sb << "${it}\n"
-		}
+		debug("Copy original...")
+		copyContent(origin, sb)
 
-		if (after?.exists()) {
-			debug "Copy contents of ${after}"
-			after.findAll().each {
-				sb << "${it}\n"
-			}
-		}
+		!appends ?: debug("Appending...")
+		copyAll(appends, sb)
 
 		debug "Writing augmented file content to ${target}"
 		target << sb.toString()
