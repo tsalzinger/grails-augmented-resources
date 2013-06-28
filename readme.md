@@ -14,7 +14,7 @@ In addition just add some minor configurations like that:
 grails.resources.mappers.augment.lesscsscompatibility = true
 grails.resources.mappers.augment.augment = [
 	'less/main.less' : [
-			after: "${System.properties['catalina.base']}/style/ci_modifications.less"
+			append: "${System.properties['catalina.base']}/style/ci_modifications.less"
 	]
 ]
 ```
@@ -27,11 +27,13 @@ By doing so you can easily provide a customized look & feel within a few minutes
 ##CURRENT FEATURES##
 
 * add content to any text based resource (eg. js, css, less, etc.) via simple configuration
-* choose between prepending ('before') and appending ('after') the content to the file - or do both!
+* choose between prepending and appending the content to the file - or do both!
+* specify resources to augment with ant patterns
 
 ##CONFIGURATION##
 
-The following configurations can be made atm:
+The following configurations are supported:
+
 ###grails.resources.mappers.augment.includes###
 A list of ant patterns of all resources to include into the augmentation process. Defaults to ['less/\*\*/\*.less*, 'css/\*\*/\*.css', 'js/\*\*/\*.js']
 
@@ -44,19 +46,40 @@ If true all augmented *.less* files will update the sourceUrl to enable processi
 ###grails.resources.mappers.augment.augment###
 A map containing the configuration on which resources to augment with which files.
 The keys of the map are ant patterns against all resources which are included for processing are matched.
-The values again are a map which can contain values for 'before' (prepend to the resource) and 'after' (append to the resource).
-The values of this map correspond either to absolute file system paths or relative to the parent context of the grails application.
+The values again are a map which can contain values for 'prepend' (prepend to the resource) and 'append' (append to the resource).
+The values of this map correspond either to a single absolute file system paths or relative to the parent context of the grails application or to a list of such.
 
 This leads to the following structure:
 
 ```groovy
-['<<antPattern>>' :
-    [
-        before: '<<absoluteOrRelativePath>>',
-        after: '<<absoluteOrRelativePath>>'
+[
+    '<<antPattern>>' : [
+        prepend: '<<absoluteOrRelativePaths>>',
+        append: '<<absoluteOrRelativePaths>>'
     ]
 ]
 ```
+
+
+###SAMPLE CONFIGURATION###
+
+
+```groovy
+grails.resources.mappers.augment.lesscsscompatibility = true
+grails.resources.mappers.augment.augment = [
+    '**/*.less' : [
+        prepend: ['less/_mixins.less', 'less/_variables.less', 'less/_colors.less']
+    ],
+    'less/main.less' : [
+        append: ['file:${System.properties['catalina.base']/style/ci_variables.less', 'file:${System.properties['catalina.base']/style/ci_styles.less']
+    ],
+    '**/*.js' : [
+        prepend: 'license.js'
+    ]
+]
+```
+
+
 
 ##KNOWN LIMITATIONS##
 
@@ -65,5 +88,4 @@ This leads to the following structure:
 ##TODO##
 
 * get rid of 'grails.resources.mappers.augment.lesscsscompatibility'
-* add possbility to provide a list of files rather then single files
 * add possbility to configure a resource provider instead of only a path to files

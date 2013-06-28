@@ -1,9 +1,9 @@
-description = 'Grails Resource Extender Plugin'
+description = 'Grails Augmented Resources Plugin'
 
 version = '0.1'
 
 group = 'at.scheinecker'
-ext.artifactId = 'grep'
+ext.artifactId = 'augmented-resources-plugin'
 
 ext.gradleVersion = '1.5'
 

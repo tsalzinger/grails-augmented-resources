@@ -58,6 +58,16 @@ class AugmentResourceMapper {
 		}
 	}
 
+	private add(list, toadd) {
+		if (toadd) {
+			if (toadd instanceof Collection) {
+				list.addAll(toadd)
+			} else {
+				list << toadd
+			}
+		}
+	}
+
 	def map(resource, config) {
 
 		List<String> patterns = getMatchingPatterns(config.augment.keySet(), resource.sourceUrl)
@@ -74,11 +84,8 @@ class AugmentResourceMapper {
 		patterns.each {
 			Object augmentConfig = config.augment[it]
 
-			def prepend = augmentConfig.before
-			!prepend ?: (prepends << prepend)
-
-			def append = augmentConfig.after
-			!append ?: (appends << append)
+			add prepends, augmentConfig.prepend
+			add appends, augmentConfig.append
 		}
 
 		if (!prepends && !appends) {
