@@ -50,26 +50,30 @@ class AugmentResourceMapper {
 
 
 	private void copyResource(Resource resource, Appendable appendable) {
-		if (resource?.exists()) {
+		if (resource.exists()) {
 			def out = new ByteArrayOutputStream()
 			IOUtils.copy(resource.inputStream, out)
 			appendable << "${new String(out.toByteArray())}\n"
+		} else {
+			debug "Skipping ${resource} because it doesn't exist"
 		}
 	}
 
 	private void copyFile(File file, Appendable appendable) {
-		if (file?.exists()) {
+		if (file.exists()) {
 			debug "Copy contents of ${file}"
 			file.findAll().each {
 				appendable << "${it}\n"
 			}
+		} else {
+			debug "Skipping ${file} because it doesn't exist"
 		}
 	}
 
 	private add(list, toAdd) {
 		if (toAdd) {
 			if (toAdd instanceof Collection) {
-				toAdd.each {
+				toAdd.findAll().each {
 					list << getResource(it)
 				}
 			} else {
@@ -166,7 +170,7 @@ class AugmentResourceMapper {
 		if (path instanceof Resource) {
 			return path
 		}
-		return path ? grailsApplication.parentContext.getResource(path) : null
+		return grailsApplication.parentContext.getResource(path)
 	}
 
 	private String replaceFileExtension(String fileName, String extension) {

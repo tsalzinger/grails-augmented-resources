@@ -29,6 +29,7 @@ By doing so you can easily provide a customized look & feel within a few minutes
 * add content to any text based resource (eg. js, css, less, etc.) via simple configuration
 * choose between prepending and appending the content to the file - or do both!
 * specify resources to augment with ant patterns
+* use either local files or arbitrary resources as source for your augmentation
 
 ##CONFIGURATION##
 
@@ -47,15 +48,15 @@ If true all augmented *.less* files will update the sourceUrl to enable processi
 A map containing the configuration on which resources to augment with which files.
 The keys of the map are ant patterns against all resources which are included for processing are matched.
 The values again are a map which can contain values for 'prepend' (prepend to the resource) and 'append' (append to the resource).
-The values of this map correspond either to a single absolute file system paths or relative to the parent context of the grails application or to a list of such.
+Following is a list (or single element) of either Resources (eg. UrlResource, FileSystemResource, ClasspathResource, etc.) or simple Strings refering to the path of the file.
 
 This leads to the following structure:
 
 ```groovy
 [
     '<<antPattern>>' : [
-        prepend: '<<absoluteOrRelativePaths>>',
-        append: '<<absoluteOrRelativePaths>>'
+        prepend: ['<<ResourceOrPath>>'],
+        append: ['<<ResourceOrPath>>']
     ]
 ]
 ```
@@ -68,13 +69,23 @@ This leads to the following structure:
 grails.resources.mappers.augment.lesscsscompatibility = true
 grails.resources.mappers.augment.augment = [
     '**/*.less' : [
-        prepend: ['less/_mixins.less', 'less/_variables.less', 'less/_colors.less']
+        prepend: [
+            new UrlResource("https://raw.github.com/twitter/bootstrap/master/less/variables.less"),
+            new UrlResource("https://raw.github.com/twitter/bootstrap/master/less/mixins.less"),
+            'less/_mixins.less',
+            'less/_variables.less',
+            'less/_colors.less'
+        ]
     ],
     'less/main.less' : [
-        append: ['file:${System.properties['catalina.base']/style/ci_variables.less', 'file:${System.properties['catalina.base']/style/ci_styles.less']
+        append: [
+            'file:${System.properties['catalina.base']/style/ci_variables.less',
+            'file:${System.properties['catalina.base']/style/ci_styles.less',
+            new UrlResource("https://mystyleprovider.com/${appName}/${appVersion}/append/main.less")
+        ]
     ],
     '**/*.js' : [
-        prepend: 'license.js'
+        prepend: 'js/license.js'
     ]
 ]
 ```
