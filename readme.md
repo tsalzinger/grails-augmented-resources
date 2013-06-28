@@ -88,4 +88,3 @@ grails.resources.mappers.augment.augment = [
 ##TODO##
 
 * get rid of 'grails.resources.mappers.augment.lesscsscompatibility'
-* add possbility to configure a resource provider instead of only a path to files

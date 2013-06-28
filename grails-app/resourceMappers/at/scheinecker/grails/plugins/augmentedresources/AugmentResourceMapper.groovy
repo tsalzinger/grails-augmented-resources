@@ -1,9 +1,9 @@
 package at.scheinecker.grails.plugins.augmentedresources
-
+import org.apache.commons.io.IOUtils
 import org.apache.commons.logging.LogFactory
 import org.codehaus.groovy.grails.io.support.AntPathMatcher
 import org.grails.plugin.resource.mapper.MapperPhase
-
+import org.springframework.core.io.Resource
 /**
  * This resource mapper appends and prepends the content of files to configured resources.
  * @author Thomas Scheinecker
@@ -42,28 +42,38 @@ class AugmentResourceMapper {
 		return matches
 	}
 
-	private void copyAll(paths, StringBuilder sb) {
-		paths.each {
-			!it ?: copyContent(getFile(it), sb)
+	private void copyResources(resources, Appendable appendable) {
+		resources.each {
+			!it ?: copyResource(it, appendable)
 		}
 	}
 
 
-	private void copyContent(File src, StringBuilder sb) {
-		if (src?.exists()) {
-			debug "Copy contents of ${src}"
-			src.findAll().each {
-				sb << "${it}\n"
+	private void copyResource(Resource resource, Appendable appendable) {
+		if (resource?.exists()) {
+			def out = new ByteArrayOutputStream()
+			IOUtils.copy(resource.inputStream, out)
+			appendable << "${new String(out.toByteArray())}\n"
+		}
+	}
+
+	private void copyFile(File file, Appendable appendable) {
+		if (file?.exists()) {
+			debug "Copy contents of ${file}"
+			file.findAll().each {
+				appendable << "${it}\n"
 			}
 		}
 	}
 
-	private add(list, toadd) {
-		if (toadd) {
-			if (toadd instanceof Collection) {
-				list.addAll(toadd)
+	private add(list, toAdd) {
+		if (toAdd) {
+			if (toAdd instanceof Collection) {
+				toAdd.each {
+					list << getResource(it)
+				}
 			} else {
-				list << toadd
+				list << getResource(toAdd)
 			}
 		}
 	}
@@ -78,8 +88,8 @@ class AugmentResourceMapper {
 
 		debug "Preparing to augment ${resource.sourceUrl}"
 
-		def prepends = []
-		def appends = []
+		List<Resource> prepends = []
+		List<Resource> appends = []
 
 		patterns.each {
 			Object augmentConfig = config.augment[it]
@@ -116,19 +126,19 @@ class AugmentResourceMapper {
 			}
 		}
 
-		StringBuilder sb = new StringBuilder()
+		StringWriter stringWriter = new StringWriter()
 
 		!prepends ?: debug("Prepending...")
-		copyAll(prepends, sb)
+		copyResources(prepends, stringWriter)
 
 		debug("Copy original...")
-		copyContent(origin, sb)
+		copyFile(origin, stringWriter)
 
 		!appends ?: debug("Appending...")
-		copyAll(appends, sb)
+		copyResources(appends, stringWriter)
 
 		debug "Writing augmented file content to ${target}"
-		target << sb.toString()
+		target << stringWriter.toString()
 
 		resource.processedFile = target
 		resource.updateActualUrlFromProcessedFile()
@@ -136,7 +146,7 @@ class AugmentResourceMapper {
 		if (config.lesscsscompatibility && resource.processedFileExtension == 'less') {
 			// this part is completely messed up and is only here because the lesscss resources plugin
 			// uses the sourceUrl instead of the processed file ...
-			File original = getOriginalFile(resource.sourceUrl)
+			File original = getResource(resource.sourceUrl).file
 			File copy = new File(original.parentFile, target.name)
 			if (copy.exists()) {
 				debug "Compatiblilty file ${copy} already exists - trying to delete"
@@ -147,9 +157,16 @@ class AugmentResourceMapper {
 			}
 
 			debug "Writing augmented file content to compatibility file ${target}"
-			copy << sb.toString()
+			copy << stringWriter.toString()
 			resource.sourceUrl = "${resource.sourceUrl.replaceAll(original.name, target.name)}"
 		}
+	}
+
+	private Resource getResource(path) {
+		if (path instanceof Resource) {
+			return path
+		}
+		return path ? grailsApplication.parentContext.getResource(path) : null
 	}
 
 	private String replaceFileExtension(String fileName, String extension) {
@@ -157,15 +174,7 @@ class AugmentResourceMapper {
 		return "${withoutExtension}.${extension}"
 	}
 
-	private File getFile(path) {
-		return path ? grailsApplication.parentContext.getResource(path).file : null
-	}
-
 	private static void debug(String message) {
 		!LOG.debugEnabled ?: LOG.debug(message)
-	}
-
-	private File getOriginalFile(String path) {
-		return grailsApplication.parentContext.getResource(path).file
 	}
 }
