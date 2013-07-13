@@ -3,3 +3,8 @@
 /grails-*.zip
 /plugin.xml
 web-app
+*.iml
+*.ipr
+*.iws
+*.classpath
+*.project
