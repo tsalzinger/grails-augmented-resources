@@ -1,9 +1,11 @@
 package at.scheinecker.grails.plugins.augmentedresources
+
 import org.apache.commons.io.IOUtils
 import org.apache.commons.logging.LogFactory
-import org.codehaus.groovy.grails.io.support.AntPathMatcher
 import org.grails.plugin.resource.mapper.MapperPhase
 import org.springframework.core.io.Resource
+import org.springframework.util.AntPathMatcher
+
 /**
  * This resource mapper appends and prepends the content of files to configured resources.
  * @author Thomas Scheinecker
@@ -18,7 +20,7 @@ class AugmentResourceMapper {
 	def phase = MapperPhase.GENERATION
 
 	// -1 to ensure running before lesscss resources
-	def priority = -1
+	int priority = -1
 
 	static defaultIncludes = ['less/**/*.less', 'css/**/*.css', 'js/**/*.js']
 
