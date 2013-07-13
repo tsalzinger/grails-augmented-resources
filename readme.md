@@ -1,8 +1,14 @@
 #AUGMENTED RESOURCES GRAILS PLUGIN#
 This plugin provides the possibility to extend any textual resource with any other resources - all via some simple configuration values.
 
-##IMPORTAT NOTE##
-**THIS PLUGIN IS STILL UNDER DEVELOPMENT AND NOT YET PUBLISHED - BUT FEEL FREE TO TRY IT OUT AND LET ME KNOW WHAT YOU THINK**
+##INSTALLATION##
+Just add
+
+```groovy
+compile: ":augmented-resources:1.0.RC1"
+```
+
+to the plugins section of your BuildConfig.goovy and you are good to go.
 
 ##USAGE EXAMPLE##
 
