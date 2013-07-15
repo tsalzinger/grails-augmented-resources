@@ -16,7 +16,7 @@ This is especially useful when using it in conjunction with css pre-processors a
 can easily redefine variables or add complete styles without the need to rebuild your project.
 '''
 
-	def documentation = "http://grails.org/plugin/grails-augmented-resources-plugin"
+	def documentation = "https://github.com/tscheinecker/grails-augmented-resources"
 
 	def license = "APACHE"
 
