@@ -17,7 +17,6 @@ This is easily done with the help of this plugin! Just do your initial styling w
 In addition just add some minor configurations like that:
 
 ```groovy
-grails.resources.mappers.augment.lesscsscompatibility = true
 grails.resources.mappers.augment.augment = [
 	'less/main.less' : [
 			append: "${System.properties['catalina.base']}/style/ci_modifications.less"
@@ -47,9 +46,6 @@ A list of ant patterns of all resources to include into the augmentation process
 ###grails.resources.mappers.augment.excludes###
 A list of ant patterns of all resources for exclude form the augmentation process. Empty by default
 
-###grails.resources.mappers.augment.lesscsscompatibility###
-If true all augmented *.less* files will update the sourceUrl to enable processing by the lesscss plugin
-
 ###grails.resources.mappers.augment.augment###
 A map containing the configuration on which resources to augment with which files.
 The keys of the map are ant patterns against all resources which are included for processing are matched.
@@ -72,7 +68,6 @@ This leads to the following structure:
 
 
 ```groovy
-grails.resources.mappers.augment.lesscsscompatibility = true
 grails.resources.mappers.augment.augment = [
     '**/*.less' : [
         prepend: [
@@ -101,7 +96,3 @@ grails.resources.mappers.augment.augment = [
 ##KNOWN LIMITATIONS##
 
 * the contets of the original files are copied and saved as a completly new file - therefore relative references will not work! (eg. in the usage example above you cant put ci_colors.less next to the ci_modifications.less and add a @import "ci_colors.less" to your file - it just wouldn't work!
-
-##TODO##
-
-* get rid of 'grails.resources.mappers.augment.lesscsscompatibility'

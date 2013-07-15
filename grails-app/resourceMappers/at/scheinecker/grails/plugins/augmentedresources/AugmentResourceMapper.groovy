@@ -148,24 +148,6 @@ class AugmentResourceMapper {
 
 		resource.processedFile = target
 		resource.updateActualUrlFromProcessedFile()
-
-		if (config.lesscsscompatibility && resource.processedFileExtension == 'less') {
-			// this part is completely messed up and is only here because the lesscss resources plugin
-			// uses the sourceUrl instead of the processed file ...
-			File original = getResource(resource.sourceUrl).file
-			File copy = new File(original.parentFile, target.name)
-			if (copy.exists()) {
-				debug "Compatiblilty file ${copy} already exists - trying to delete"
-				if (!copy.delete()) {
-					LOG.error "Compatibility file couldn't be deleted - aborting"
-					return
-				}
-			}
-
-			debug "Writing augmented file content to compatibility file ${target}"
-			copy << stringWriter.toString()
-			resource.sourceUrl = "${resource.sourceUrl.replaceAll(original.name, target.name)}"
-		}
 	}
 
 	private Resource getResource(path) {
