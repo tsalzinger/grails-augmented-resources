@@ -1,5 +1,5 @@
 class AugmentedResourcesGrailsPlugin {
-	def version = "1.0.RC1"
+	def version = "1.0"
 	def grailsVersion = "2.0 > *"
 	def loadAfter = ['resources']
 	def pluginExcludes = [

@@ -5,7 +5,7 @@ This plugin provides the possibility to extend any textual resource with any oth
 Just add
 
 ```groovy
-compile: ":augmented-resources:1.0.RC1"
+compile: ":augmented-resources:1.0"
 ```
 
 to the plugins section of your BuildConfig.goovy and you are good to go.
