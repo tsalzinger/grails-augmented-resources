@@ -100,7 +100,7 @@ grails.resources.mappers.augment.augment = [
 
 ##KNOWN LIMITATIONS##
 
-* the contets of the original files are copied and saved as a completly new file - therefore relative references will not work! (eg. in the usage example above you cant put ci_colors.less next to the ci_modifications.less and add a @import "ci_colors.less" to your file - it just wouldn't work!
+* the contents of the original files are copied and saved as a completly new file - therefore relative references will not work! (eg. in the usage example above you cant put ci_colors.less next to the ci_modifications.less and add a @import "ci_colors.less" to your file - it just wouldn't work!
 
 ##TODO##
 
