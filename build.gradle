@@ -1,6 +1,6 @@
 description = 'Grails Augmented Resources Plugin'
 
-version = '0.1'
+version = '1.0.1-SNAPSHOT'
 
 group = 'at.scheinecker'
 ext.artifactId = 'augmented-resources-plugin'
