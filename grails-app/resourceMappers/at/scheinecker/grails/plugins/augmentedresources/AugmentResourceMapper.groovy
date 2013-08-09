@@ -165,6 +165,9 @@ class AugmentResourceMapper {
 			debug "Writing augmented file content to compatibility file ${target}"
 			copy << stringWriter.toString()
 			resource.sourceUrl = "${resource.sourceUrl.replaceAll(original.name, target.name)}"
+
+			resource.processedFile = copy
+			resource.updateActualUrlFromProcessedFile()
 		}
 	}
 
