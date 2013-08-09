@@ -44,32 +44,39 @@ class AugmentResourceMapper {
 		return matches
 	}
 
-	private void copyResources(resources, Appendable appendable) {
+	private boolean copyResources(resources, Appendable appendable) {
+		boolean copied = false
 		resources.each {
-			!it ?: copyResource(it, appendable)
+			!it ?: (copied |= copyResource(it, appendable))
 		}
+		return copied
 	}
 
 
-	private void copyResource(Resource resource, Appendable appendable) {
+	private boolean copyResource(Resource resource, Appendable appendable) {
 		if (resource.exists()) {
+			debug "Copy contents of ${resource}"
 			def out = new ByteArrayOutputStream()
 			IOUtils.copy(resource.inputStream, out)
 			appendable << "${new String(out.toByteArray())}\n"
-		} else {
-			debug "Skipping ${resource} because it doesn't exist"
+			return true
 		}
+
+		debug "Skipping ${resource} because it doesn't exist"
+		return false
 	}
 
-	private void copyFile(File file, Appendable appendable) {
+	private boolean copyFile(File file, Appendable appendable) {
 		if (file.exists()) {
 			debug "Copy contents of ${file}"
 			file.findAll().each {
 				appendable << "${it}\n"
 			}
-		} else {
-			debug "Skipping ${file} because it doesn't exist"
+			return true
 		}
+
+		debug "Skipping ${file} because it doesn't exist"
+		return false
 	}
 
 	private add(list, toAdd) {
@@ -133,15 +140,21 @@ class AugmentResourceMapper {
 		}
 
 		StringWriter stringWriter = new StringWriter()
+		boolean copied = false
 
 		!prepends ?: debug("Prepending...")
-		copyResources(prepends, stringWriter)
+		copied |= copyResources(prepends, stringWriter)
 
 		debug("Copy original...")
 		copyFile(origin, stringWriter)
 
 		!appends ?: debug("Appending...")
-		copyResources(appends, stringWriter)
+		copied |= copyResources(appends, stringWriter)
+
+		if (!copied) {
+			debug "Nothing was augmented - leaving the original resource untouched"
+			return
+		}
 
 		debug "Writing augmented file content to ${target}"
 		target << stringWriter.toString()
